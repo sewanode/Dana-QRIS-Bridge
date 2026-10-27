@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DANA QRIS Bridge — Merchant Payment Gateway Portal</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+
+  <!-- 1. BANKING LOGIN SCREEN (Default PW: 123456) -->
+  <div id="loginScreen" class="auth-wrapper">
+    <div class="auth-card">
+      <div class="brand-badge">DANA QRIS MERCHANT PORTAL</div>
+      <h1>Masuk ke Dashboard</h1>
+      <p>Kelola terminal notifikasi Android, QRIS Dinamis, serta integrasi API Payment Gateway Anda.</p>
+      <form id="loginForm">
+        <div class="form-group">
+          <label for="loginPassword">Password Administrator</label>
+          <input type="password" id="loginPassword" class="form-control" placeholder="Masukkan password (Default: 123456)" required autofocus />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px; margin-top: 6px;">Masuk ke Portal</button>
+      </form>
+      <p style="margin-top: 18px; margin-bottom: 0; font-size: 12px; text-align: center; color: var(--text-muted);">
+        Password bawaan pertama kali adalah <strong>123456</strong>
+      </p>
+    </div>
+  </div>
+
+  <!-- 2. FORCE CHANGE PASSWORD ON FIRST LOGIN -->
+  <div id="changePwScreen" class="auth-wrapper hidden">
+    <div class="auth-card">
+      <div class="brand-badge" style="background: var(--status-warn-bg); color: var(--status-warn-text);">
+        KEAMANAN LOGIN PERTAMA
+      </div>
+      <h1>Buat Password Baru</h1>
+      <p>Untuk melindungi akses API Gateway dan transaksi toko Anda, silakan ganti password bawaan (123456) terlebih dahulu.</p>
+      <form id="changePwForm">
+        <div class="form-group">
+          <label for="newPassword">Password Baru (Minimal 6 Karakter)</label>
+          <input type="password" id="newPassword" class="form-control" placeholder="Masukkan password baru" required />
+        </div>
+        <div class="form-group">
+          <label for="confirmNewPassword">Konfirmasi Password Baru</label>
+          <input type="password" id="confirmNewPassword" class="form-control" placeholder="Ulangi password baru" required />
+        </div>
+        <button type="submit" class="btn btn-primary" style="width: 100%; padding: 11px; margin-top: 6px;">Simpan Password &amp; Lanjutkan</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- 3. MAIN BANKING PORTAL SHELL -->
+  <div id="dashboardScreen" class="portal-shell hidden">
+    <!-- LEFT SIDEBAR NAVIGATION -->
+    <aside class="sidebar">
+      <div class="sidebar-brand">
+        <div class="brand-icon">QR</div>
+        <div class="brand-text">
+          <h2>DANA QRIS Bridge</h2>
+          <span>Merchant Payment Portal</span>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav" aria-label="Menu Utama">
+        <div class="nav-section-label">Konfigurasi Utama</div>
+        <button type="button" class="nav-item active" data-nav="setup">
+          <span>1. Setup QRIS &amp; HP</span>
+          <span id="navBadgeSetup" class="nav-item-badge">Wajib</span>
+        </button>
+
+        <div class="nav-section-label">Integrasi Developer</div>
+        <button type="button" class="nav-item" data-nav="apidocs">
+          <span>2. Dokumentasi &amp; Test API</span>
+          <span id="navBadgeDocs" class="nav-item-badge">🔒</span>
+        </button>
+        <button type="button" class="nav-item" data-nav="settings">
+          <span>3. Kredensial &amp; Webhook</span>
+          <span id="navBadgeSettings" class="nav-item-badge">🔒</span>
+        </button>
+
+        <div class="nav-section-label">Transaksi &amp; Aktivitas</div>
+        <button type="button" class="nav-item" data-nav="transactions">
+          <span>4. Riwayat Transaksi</span>
+          <span id="navBadgeTxCount" class="nav-item-badge">0</span>
+        </button>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="server-info-box">
+          <div>IP Server: <strong id="navLanIp">127.0.0.1</strong></div>
+          <div>Port Pair HP: <strong id="navPairPort">2020</strong></div>
+          <div>Port HTTP: <strong id="navHttpPort">8080</strong></div>
+        </div>
+        <button id="btnLogout" type="button" class="btn btn-outline btn-sm" style="width: 100%; background: rgba(255,255,255,0.08); color: #fff; border-color: rgba(255,255,255,0.2);">
+          Keluar Sesi
+        </button>
+      </div>
+    </aside>
+
+    <!-- RIGHT MAIN WORKSPACE -->
+    <div class="main-area">
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1 id="pageHeaderTitle">Konfigurasi QRIS &amp; Terminal Android</h1>
+          <p id="pageHeaderSubtitle">Lengkapi upload QRIS Statis dan tautkan perangkat Android menggunakan Code Pair.</p>
+        </div>
+        <div class="topbar-right">
+          <div id="stepQrisBadge" class="step-pill pending">
+            <span id="stepQrisIcon">⏳</span>
+            <span>QRIS Statis</span>
+          </div>
+          <div id="stepPairBadge" class="step-pill pending">
+            <span id="stepPairIcon">⏳</span>
+            <span>Pair HP Android</span>
+          </div>
+          <button id="btnRefreshOverview" type="button" class="btn btn-outline btn-sm">Refresh</button>
+        </div>
+      </header>
+
+      <main class="workspace-content">
+        <!-- KPI SUMMARY BAR -->
+        <div class="kpi-grid">
+          <div class="kpi-card">
+            <div class="kpi-label">Status Gateway</div>
+            <div class="kpi-value" id="kpiGatewayStatus" style="color: var(--status-warn-text);">Menunggu Setup</div>
+            <div class="kpi-sub" id="kpiMerchantSub">Upload QRIS &amp; Pair HP</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Terminal HP Terhubung</div>
+            <div class="kpi-value" id="kpiDeviceCount">0 Perangkat</div>
+            <div class="kpi-sub">Port Pairing: <strong id="kpiPairPort">2020</strong></div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Transaksi Berhasil (PAID)</div>
+            <div class="kpi-value" id="kpiPaidCount" style="color: var(--status-success-text);">0 Transaksi</div>
+            <div class="kpi-sub" id="kpiPendingCount">0 menunggu pembayaran</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-label">Total Volume Diterima</div>
+            <div class="kpi-value" id="kpiTotalVolume" style="color: var(--bank-blue-dark);">Rp0</div>
+            <div class="kpi-sub">Akumulasi transaksi PAID</div>
+          </div>
+        </div>
+
+        <!-- =================================================================
+             VIEW 1: SETUP QRIS STATIS & PAIRING HP ANDROID (DEFAULT)
+             ================================================================= -->
+        <div id="viewSetup" class="portal-view">
+          <div class="grid-2">
+            <!-- STEP 1: UPLOAD QRIS -->
+            <section class="card">
+              <div class="card-header">
+                <h2>1. Upload QRIS Statis Merchant</h2>
+                <span id="qrisStatusBadge" class="status-badge required">Wajib (Required)</span>
+              </div>
+              <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                Upload gambar QRIS Statis DANA Bisnis Anda (<code>.png</code> / <code>.jpg</code>) atau tempel raw payload QRIS. Sistem otomatis men-decode dan mengubahnya menjadi <strong>QRIS Dinamis</strong> sesuai nominal + kode unik setiap ada transaksi baru.
+              </p>
+              <form id="qrisUploadForm">
+                <div class="form-group">
+                  <label for="qrisFileInput">Pilih File Gambar QRIS (.png / .jpg / .webp)</label>
+                  <input type="file" id="qrisFileInput" accept="image/*" class="form-control" />
+                </div>
+                <div class="form-group">
+                  <label for="qrisRawInput">Atau Tempel String Payload EMVCo QRIS</label>
+                  <textarea id="qrisRawInput" class="form-control" placeholder="00020101021126...6304XXXX"></textarea>
+                </div>
+                <div class="input-row" style="flex-wrap: wrap;">
+                  <button type="submit" class="btn btn-primary">Simpan QRIS Merchant</button>
+                  <button type="button" id="btnSampleQris" class="btn btn-outline">Gunakan Sample QRIS DANA Bisnis</button>
+                </div>
+              </form>
+
+              <div id="qrisPreviewBox" class="qris-preview-box hidden">
+                <img id="qrisPreviewImg" src="" alt="Preview QRIS" />
+                <div>
+                  <h3 id="qrisMerchantName" style="font-size: 15.5px; color: var(--bank-blue-dark); margin-bottom: 4px;">-</h3>
+                  <p style="font-size: 12.5px; color: var(--text-secondary);">Kota Merchant: <strong id="qrisMerchantCity">-</strong></p>
+                  <p style="font-size: 12.5px; color: var(--text-secondary);">NMID: <strong id="qrisNmid">-</strong></p>
+                  <p style="font-size: 12px; color: var(--status-success-text); font-weight: 700; margin-top: 6px;">
+                    ✓ QRIS Terverifikasi — Siap Recode ke QRIS Dinamis
+                  </p>
+                </div>
+              </div>
+            </section>
+
+            <!-- STEP 2: PAIR ANDROID DEVICE -->
+            <section class="card">
+              <div class="card-header">
+                <h2>2. Tautkan HP Android (Code Pair)</h2>
+                <span id="pairStatusBadge" class="status-badge required">Wajib (Required)</span>
+              </div>
+              <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                Buka aplikasi <strong>DANA QRIS Bridge</strong> di HP Android, masukkan IP Server <strong id="pairGuideIp">127.0.0.1</strong> dan Port <strong id="pairGuidePort">2020</strong>, lalu ketik <strong>6-Digit Code Pair</strong> dari layar HP di bawah ini:
+              </p>
+              <form id="pairConfirmForm">
+                <div class="input-row" style="margin-bottom: 14px; flex-wrap: wrap;">
+                  <input type="text" id="pairCodeInput" class="form-control" placeholder="Contoh: 482910" maxlength="10" required style="flex: 1; min-width: 150px; font-family: var(--font-mono); font-weight: 700;" />
+                  <input type="text" id="pairDeviceNameInput" class="form-control" placeholder="Nama Kasir (cth: HP Kasir 1)" style="flex: 1; min-width: 150px;" />
+                  <button type="submit" class="btn btn-primary">Tautkan HP</button>
+                </div>
+              </form>
+
+              <!-- Pending Devices Waiting on Port 2020 -->
+              <div id="pendingDevicesWrap" class="hidden" style="margin-top: 12px;">
+                <label style="font-size: 12px; color: var(--status-warn-text); font-weight: 700; display: block;">
+                  Perangkat Terdeteksi Menunggu Persetujuan di Port 2020:
+                </label>
+                <div id="pendingDevicesList" class="device-list"></div>
+              </div>
+
+              <!-- Paired Devices List -->
+              <div style="margin-top: 16px;">
+                <label style="font-size: 12px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; display: block;">
+                  Daftar Terminal Android Terhubung (Multi-HP):
+                </label>
+                <div id="pairedDevicesList" class="device-list"></div>
+              </div>
+            </section>
+          </div>
+        </div>
+
+        <!-- =================================================================
+             VIEW 2: INTERACTIVE API DOCUMENTATION & LIVE PLAYGROUND TESTER
+             ================================================================= -->
+        <div id="viewApidocs" class="portal-view hidden">
+          <!-- Locked Notice if Setup Incomplete -->
+          <div id="docsLockedBox" class="locked-box">
+            <h3>🔒 Dokumentasi &amp; Playground API Belum Terbuka</h3>
+            <p>
+              Silakan selesaikan kedua syarat wajib (<strong>1. Upload QRIS Statis</strong> dan <strong>2. Pair HP Android</strong>) terlebih dahulu untuk membuka dokumentasi dan konsol pengujian API.
+            </p>
+            <button type="button" class="btn btn-primary" onclick="window.switchPortalTab('setup')">
+              Buka Menu Setup QRIS &amp; Perangkat
+            </button>
+          </div>
+
+          <div id="docsUnlockedContent" class="hidden">
+            <!-- ENDPOINT 1: POST /api/transaction/create -->
+            <div class="api-endpoint-card">
+              <div class="api-endpoint-topbar">
+                <div class="endpoint-bar-left">
+                  <span class="http-method post">POST</span>
+                  <span class="endpoint-url" id="docCreateUrlText">/api/transaction/create</span>
+                  <span style="font-size: 12.5px; color: var(--text-secondary);">— Buat Tagihan QRIS Dinamis + Kode Unik</span>
+                </div>
+                <button type="button" id="btnCopyCreateUrl" class="btn btn-outline btn-sm">Salin Endpoint URL</button>
+              </div>
+
+              <div class="api-endpoint-body">
+                <!-- Left Pane: Clean Structured Documentation -->
+                <div class="api-doc-pane">
+                  <div class="pane-section-title">
+                    <span>1. Parameter Request Body (JSON)</span>
+                    <span>Header: <code>Authorization: Bearer &lt;apiKey&gt;</code></span>
+                  </div>
+                  <div class="param-table-wrap">
+                    <table class="param-table">
+                      <thead>
+                        <tr>
+                          <th>Field</th>
+                          <th>Tipe</th>
+                          <th>Status</th>
+                          <th>Keterangan</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><span class="param-name">amount</span></td>
+                          <td><span class="param-type">number</span></td>
+                          <td><span class="status-badge complete">Wajib</span></td>
+                          <td>Nominal transaksi pokok (server otomatis menambahkan kode unik ke field <code>amount</code> pada response).</td>
+                        </tr>
+                        <tr>
+                          <td><span class="param-name">customer_name</span></td>
+                          <td><span class="param-type">string</span></td>
+                          <td><span class="status-badge complete">Wajib</span></td>
+                          <td>Nama pelanggan (cth: <code>Nama Pelanggan</code>).</td>
+                        </tr>
+                        <tr>
+                          <td><span class="param-name">customer_email</span></td>
+                          <td><span class="param-type">string</span></td>
+                          <td><span class="status-badge required">Opsional</span></td>
+                          <td>Email pelanggan (cth: <code>emailpelanggan@domain.com</code>).</td>
+                        </tr>
+                        <tr>
+                          <td><span class="param-name">customer_phone</span></td>
+                          <td><span class="param-type">string</span></td>
+                          <td><span class="status-badge required">Opsional</span></td>
+                          <td>Nomor HP pelanggan (cth: <code>081234567890</code>).</td>
+                        </tr>
+                        <tr>
+                          <td><span class="param-name">order_items</span></td>
+                          <td><span class="param-type">array</span></td>
+                          <td><span class="status-badge required">Opsional</span></td>
+                          <td>Daftar item pesanan (<code>sku</code>, <code>name</code>, <code>price</code>, <code>quantity</code>).</td>
+                        </tr>
+                        <tr>
+                          <td><span class="param-name">return_url</span></td>
+                          <td><span class="param-type">string</span></td>
+                          <td><span class="status-badge required">Opsional</span></td>
+                          <td>URL redirect setelah pembayaran lunas.</td>
+                        </tr>
+                        <tr>
+                          <td><span class="param-name">expired_time</span></td>
+                          <td><span class="param-type">number</span></td>
+                          <td><span class="status-badge required">Opsional</span></td>
+                          <td>Durasi kedaluwarsa dalam detik (default: <code>600</code>).</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="pane-section-title">
+                    <span>2. Contoh Kode Request</span>
+                  </div>
+                  <div class="code-viewer">
+                    <div class="code-viewer-header">
+                      <div class="code-tabs">
+                        <button type="button" class="code-tab active" data-target="create" data-lang="spec">Dokumentasi</button>
+                        <button type="button" class="code-tab" data-target="create" data-lang="curl">cURL</button>
+                        <button type="button" class="code-tab" data-target="create" data-lang="node">Node.js</button>
+                        <button type="button" class="code-tab" data-target="create" data-lang="php">PHP</button>
+                      </div>
+                      <button type="button" id="btnCopyCreateCode" class="btn btn-outline btn-sm" style="padding: 3px 8px; font-size: 11px;">Salin Kode</button>
+                    </div>
+                    <pre class="code-pre" id="docCreateCodePre"></pre>
+                  </div>
+
+                  <div class="pane-section-title">
+                    <span>3. Contoh Successfully Response (200 OK)</span>
+                    <button type="button" id="btnCopyCreateSampleResp" class="btn btn-outline btn-sm">Salin JSON</button>
+                  </div>
+                  <div class="code-viewer" style="margin-bottom: 0;">
+                    <pre class="code-pre" id="docCreateSampleRespPre"></pre>
+                  </div>
+                </div>
+
+                <!-- Right Pane: Interactive API Tester -->
+                <div class="api-tester-pane">
+                  <div class="test-console-header">
+                    <div>
+                      <strong style="font-size: 14px; color: var(--bank-blue-dark);">⚡ Try It Out — Test Buat Transaksi</strong>
+                      <div style="font-size: 12px; color: var(--text-secondary);">Uji endpoint <code>POST /api/transaction/create</code> secara langsung.</div>
+                    </div>
+                    <button type="button" id="btnRunTestCreate" class="btn btn-success">
+                      ▶ Test POST /create
+                    </button>
+                  </div>
+
+                  <div class="form-group">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px;">
+                      <label for="testCreateBodyInput" style="margin-bottom: 0;">Request Body JSON (Dapat Diedit)</label>
+                      <button type="button" id="btnResetCreateBody" class="btn btn-outline btn-sm">Reset Default</button>
+                    </div>
+                    <textarea id="testCreateBodyInput" class="form-control" style="min-height: 210px; background: #fff;"></textarea>
+                  </div>
+
+                  <div class="response-meta-bar">
+                    <span class="pane-section-title" style="margin-bottom: 0;">Hasil Response Server</span>
+                    <div id="testCreateMetaBadge" class="hidden"></div>
+                  </div>
+                  <div class="code-viewer" style="margin-bottom: 12px;">
+                    <div class="code-viewer-header">
+                      <span style="font-size: 11px; color: #94a3b8; font-family: var(--font-mono);">Response JSON</span>
+                      <button type="button" id="btnCopyCreateLiveResp" class="btn btn-outline btn-sm" style="padding: 3px 8px; font-size: 11px;">Salin Hasil</button>
+                    </div>
+                    <pre class="code-pre" id="testCreateLiveRespPre" style="min-height: 140px;">// Klik tombol "▶ Test POST /create" di atas untuk mengeksekusi request...</pre>
+                  </div>
+
+                  <div id="testCreateInteractiveCard" class="hidden" style="background: #ffffff; border: 1px solid var(--status-success-border); border-radius: var(--radius-md); padding: 14px; box-shadow: var(--shadow-card);"></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- ENDPOINT 2: GET /api/transaction/check-status -->
+            <div class="api-endpoint-card" style="margin-bottom: 0;">
+              <div class="api-endpoint-topbar">
+                <div class="endpoint-bar-left">
+                  <span class="http-method get">GET</span>
+                  <span class="endpoint-url" id="docStatusUrlText">/api/transaction/check-status?pay_code=57585748548596587</span>
+                  <span style="font-size: 12.5px; color: var(--text-secondary);">— Cek Status Transaksi (<code>paid</code>, <code>unpaid</code>, <code>expired</code>)</span>
+                </div>
+                <button type="button" id="btnCopyStatusUrl" class="btn btn-outline btn-sm">Salin Endpoint URL</button>
+              </div>
+
+              <div class="api-endpoint-body">
+                <!-- Left Pane: Documentation -->
+                <div class="api-doc-pane">
+                  <div class="pane-section-title">
+                    <span>1. Parameter Query String</span>
+                    <span>Header: <code>Authorization: Bearer &lt;apiKey&gt;</code></span>
+                  </div>
+                  <div class="param-table-wrap">
+                    <table class="param-table">
+                      <thead>
+                        <tr>
+                          <th>Parameter</th>
+                          <th>Tipe</th>
+                          <th>Status</th>
+                          <th>Keterangan</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <tr>
+                          <td><span class="param-name">pay_code</span></td>
+                          <td><span class="param-type">string</span></td>
+                          <td><span class="status-badge complete">Wajib</span></td>
+                          <td>Kode unik transaksi 17-digit yang diperoleh dari response <code>POST /api/transaction/create</code>.</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div class="pane-section-title">
+                    <span>2. Contoh Kode Request</span>
+                  </div>
+                  <div class="code-viewer">
+                    <div class="code-viewer-header">
+                      <div class="code-tabs">
+                        <button type="button" class="code-tab active" data-target="status" data-lang="spec">Dokumentasi</button>
+                        <button type="button" class="code-tab" data-target="status" data-lang="curl">cURL</button>
+                        <button type="button" class="code-tab" data-target="status" data-lang="node">Node.js</button>
+                        <button type="button" class="code-tab" data-target="status" data-lang="php">PHP</button>
+                      </div>
+                      <button type="button" id="btnCopyStatusCode" class="btn btn-outline btn-sm" style="padding: 3px 8px; font-size: 11px;">Salin Kode</button>
+                    </div>
+                    <pre class="code-pre" id="docStatusCodePre"></pre>
+                  </div>
+
+                  <div class="pane-section-title">
+                    <span>3. Contoh Successfully Response (200 OK)</span>
+                    <button type="button" id="btnCopyStatusSampleResp" class="btn btn-outline btn-sm">Salin JSON</button>
+                  </div>
+                  <div class="code-viewer" style="margin-bottom: 0;">
+                    <pre class="code-pre" id="docStatusSampleRespPre"></pre>
+                  </div>
+                </div>
+
+                <!-- Right Pane: Interactive Tester -->
+                <div class="api-tester-pane">
+                  <div class="test-console-header">
+                    <div>
+                      <strong style="font-size: 14px; color: var(--bank-blue-dark);">⚡ Try It Out — Test Cek Status</strong>
+                      <div style="font-size: 12px; color: var(--text-secondary);">Uji endpoint <code>GET /api/transaction/check-status</code> secara langsung.</div>
+                    </div>
+                    <button type="button" id="btnRunTestStatus" class="btn btn-primary">
+                      ▶ Test GET /check-status
+                    </button>
+                  </div>
+
+                  <div class="form-group">
+                    <label for="testStatusPayCodeInput">Nilai Query Parameter <code>pay_code</code></label>
+                    <div class="input-row" style="flex-wrap: wrap;">
+                      <input type="text" id="testStatusPayCodeInput" class="form-control" placeholder="Masukkan pay_code" style="flex: 1; background: #fff; font-family: var(--font-mono); font-weight: 700;" />
+                      <select id="testStatusRecentSelect" class="form-control" style="max-width: 240px; background: #fff;">
+                        <option value="">-- Pilih Transaksi Terbaru --</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div id="testStatusQuickSimBar" class="hidden" style="margin-bottom: 12px; padding: 12px; background: #ffffff; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); display: flex; align-items: center; justify-content: space-between; gap: 10px; flex-wrap: wrap;">
+                    <span style="font-size: 12px; color: var(--text-secondary);">
+                      Transaksi ini masih <strong>UNPAID</strong>. Simulasikan uang masuk?
+                    </span>
+                    <button type="button" id="btnSimulateFromStatusTester" class="btn btn-success btn-sm">
+                      🔔 Simulasikan Notifikasi DANA Masuk
+                    </button>
+                  </div>
+
+                  <div class="response-meta-bar">
+                    <span class="pane-section-title" style="margin-bottom: 0;">Hasil Response Server</span>
+                    <div id="testStatusMetaBadge" class="hidden"></div>
+                  </div>
+                  <div class="code-viewer" style="margin-bottom: 0;">
+                    <div class="code-viewer-header">
+                      <span style="font-size: 11px; color: #94a3b8; font-family: var(--font-mono);">Response JSON</span>
+                      <button type="button" id="btnCopyStatusLiveResp" class="btn btn-outline btn-sm" style="padding: 3px 8px; font-size: 11px;">Salin Hasil</button>
+                    </div>
+                    <pre class="code-pre" id="testStatusLiveRespPre" style="min-height: 150px;">// Pilih pay_code lalu klik "▶ Test GET /check-status" di atas...</pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- =================================================================
+             VIEW 3: PENGATURAN KREDENSIAL API, KODE UNIK & WEBHOOK
+             ================================================================= -->
+        <div id="viewSettings" class="portal-view hidden">
+          <div id="settingsLockedBox" class="locked-box">
+            <h3>🔒 Pengaturan API Gateway &amp; Webhook Belum Terbuka</h3>
+            <p>
+              Silakan selesaikan kedua syarat wajib (<strong>1. Upload QRIS Statis</strong> dan <strong>2. Pair HP Android</strong>) terlebih dahulu.
+            </p>
+            <button type="button" class="btn btn-primary" onclick="window.switchPortalTab('setup')">
+              Buka Menu Setup QRIS &amp; Perangkat
+            </button>
+          </div>
+
+          <div id="settingsUnlockedContent" class="grid-2 hidden">
+            <section class="card">
+              <div class="card-header">
+                <h2>Kredensial Autentikasi &amp; Parameter Server</h2>
+                <span class="status-badge complete">Aktif</span>
+              </div>
+              <div class="form-group">
+                <label for="cfgApiKey">Bearer API Key (Header <code>Authorization: Bearer &lt;apiKey&gt;</code>)</label>
+                <div class="input-row">
+                  <input type="text" id="cfgApiKey" class="form-control" readonly style="font-family: var(--font-mono); color: var(--bank-blue-dark); font-weight: 700;" />
+                  <button type="button" id="btnCopyApiKey" class="btn btn-outline btn-sm">Salin Key</button>
+                  <button type="button" id="btnRegenApiKey" class="btn btn-danger btn-sm">Reset Key</button>
+                </div>
+              </div>
+
+              <form id="serverConfigForm">
+                <div class="grid-2" style="gap: 12px; margin-bottom: 0;">
+                  <div class="form-group">
+                    <label for="cfgPairPort">Port Pairing Android (Default: 2020)</label>
+                    <input type="number" id="cfgPairPort" class="form-control" min="1024" max="65535" />
+                  </div>
+                  <div class="form-group">
+                    <label for="cfgHttpPort">Port HTTP Server (Default: 8080)</label>
+                    <input type="number" id="cfgHttpPort" class="form-control" min="1024" max="65535" />
+                  </div>
+                </div>
+                <div class="grid-2" style="gap: 12px; margin-bottom: 0;">
+                  <div class="form-group">
+                    <label for="cfgUniqueMin">Batas Bawah Kode Unik (1-99)</label>
+                    <input type="number" id="cfgUniqueMin" class="form-control" min="1" max="99" />
+                  </div>
+                  <div class="form-group">
+                    <label for="cfgUniqueMax">Batas Atas Kode Unik (Maks 99)</label>
+                    <input type="number" id="cfgUniqueMax" class="form-control" min="1" max="99" />
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="cfgPublicHost">Public Base URL / Domain (Opsional)</label>
+                  <input type="text" id="cfgPublicHost" class="form-control" placeholder="Kosongkan untuk otomatis mengikuti host request" />
+                </div>
+                <button type="submit" class="btn btn-primary">Simpan Konfigurasi Server</button>
+              </form>
+            </section>
+
+            <section class="card">
+              <div class="card-header">
+                <h2>Konfigurasi Webhook (Callback Otomatis)</h2>
+                <span class="status-badge complete">HTTP POST</span>
+              </div>
+              <p style="font-size: 13px; color: var(--text-secondary); margin-bottom: 16px;">
+                Ketika HP Android mendeteksi notifikasi pembayaran masuk dari DANA Bisnis yang cocok dengan nominal unik tagihan, server otomatis mengirimkan HTTP <code>POST</code> ke URL Webhook Anda.
+              </p>
+              <form id="webhookConfigForm">
+                <div class="form-group">
+                  <label for="cfgWebhookUrl">Global Webhook / Callback URL</label>
+                  <input type="url" id="cfgWebhookUrl" class="form-control" placeholder="https://domainanda.com/callback" />
+                </div>
+                <div class="form-group">
+                  <label for="cfgWebhookSecret">Webhook Signature Secret (Header <code>X-DanaBridge-Signature</code>)</label>
+                  <div class="input-row">
+                    <input type="text" id="cfgWebhookSecret" class="form-control" readonly style="font-family: var(--font-mono); font-size: 12px;" />
+                    <button type="button" id="btnCopyWebhookSecret" class="btn btn-outline btn-sm">Salin</button>
+                  </div>
+                </div>
+                <div class="input-row" style="margin-top: 14px;">
+                  <button type="submit" class="btn btn-primary">Simpan Webhook</button>
+                  <button type="button" id="btnTestWebhook" class="btn btn-outline">▶ Uji Kirim Webhook</button>
+                </div>
+              </form>
+              <div id="webhookTestResultBox" class="hidden" style="margin-top: 14px; padding: 12px; border-radius: var(--radius-md); background: var(--bg-subtle); border: 1px solid var(--border-subtle); font-family: var(--font-mono); font-size: 12px;"></div>
+            </section>
+          </div>
+        </div>
+
+        <!-- =================================================================
+             VIEW 4: RIWAYAT TRANSAKSI & LOG NOTIFIKASI DANA
+             ================================================================= -->
+        <div id="viewTransactions" class="portal-view hidden">
+          <div class="grid-2">
+            <section class="card" style="margin-bottom: 0;">
+              <div class="card-header">
+                <h2>Daftar Transaksi QRIS Dinamis</h2>
+                <span class="status-badge complete">Real-Time</span>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Pay Code</th>
+                      <th>Pelanggan</th>
+                      <th>Nominal Unik</th>
+                      <th>Status</th>
+                      <th>Aksi</th>
+                    </tr>
+                  </thead>
+                  <tbody id="transactionsTableBody">
+                    <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Belum ada transaksi</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+
+            <section class="card" style="margin-bottom: 0;">
+              <div class="card-header">
+                <h2>Log Notifikasi DANA Masuk dari HP</h2>
+                <span class="status-badge required">Port <span id="logPortLabel">2020</span></span>
+              </div>
+              <div class="table-wrap">
+                <table class="data-table">
+                  <thead>
+                    <tr>
+                      <th>Waktu</th>
+                      <th>Terminal HP</th>
+                      <th>Notifikasi DANA</th>
+                      <th>Nominal</th>
+                      <th>Match</th>
+                    </tr>
+                  </thead>
+                  <tbody id="notificationsTableBody">
+                    <tr><td colspan="5" style="text-align: center; color: var(--text-muted);">Belum ada notifikasi masuk</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </section>
+          </div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <div id="toastContainer" role="status" aria-live="polite"></div>
+  <script src="/app.js"></script>
+</body>
+</html>

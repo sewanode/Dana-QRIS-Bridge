@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bank_canvas">#F2F5F9</color>
+    <color name="bank_surface">#FFFFFF</color>
+    <color name="bank_blue_dark">#0A66C2</color>
+    <color name="bank_blue_primary">#118EEA</color>
+    <color name="bank_navy_text">#0F172A</color>
+    <color name="bank_slate_text">#475569</color>
+    <color name="bank_muted_text">#94A3B8</color>
+    <color name="bank_green">#059669</color>
+    <color name="bank_amber">#D97706</color>
+    <color name="bank_red">#DC2626</color>
+    <color name="bank_border">#E2E8F0</color>
+</resources>

@@ -1,0 +1,20 @@
+{
+  "name": "dana-qris-bridge-server",
+  "version": "1.0.0",
+  "description": "Fullstack DANA QRIS Dynamic Payment Gateway & Multi-Device Android Notification Bridge Server",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "node src/index.js",
+    "dev": "node src/index.js",
+    "test": "node test/e2e-test.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "express": "^4.19.2",
+    "jimp": "^0.22.12",
+    "jsqr": "^1.4.0",
+    "multer": "^1.4.5-lts.1",
+    "qrcode": "^1.5.4",
+    "ws": "^8.18.0"
+  }
+}

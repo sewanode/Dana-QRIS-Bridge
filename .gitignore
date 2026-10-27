@@ -1,0 +1,32 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Server Local Database & Sensitive Data
+server/data/*.json
+!server/data/.gitkeep
+.env
+*.log
+
+# Android Build Outputs & Caches
+android-app/.gradle/
+android-app/build/
+android-app/*/build/
+android-app/local.properties
+android-app/*.iml
+android-app/*/*.iml
+android-app/.idea/
+.gradle/
+build/
+
+# Compiled APKs (Keep the root release APK if desired, or ignore build outputs)
+android-app/app/build/outputs/apk/
+*.apk.idsig
+
+# OS & Editor Files
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+.vscode/
+.idea/

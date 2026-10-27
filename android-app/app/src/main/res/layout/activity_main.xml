@@ -1,0 +1,622 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bank_canvas"
+    android:fillViewport="true">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="28dp">
+
+        <!-- =================================================================== -->
+        <!-- BANKING TOP HEADER BANNER                                           -->
+        <!-- =================================================================== -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/bg_header_bank"
+            android:orientation="vertical"
+            android:paddingHorizontal="20dp"
+            android:paddingTop="22dp"
+            android:paddingBottom="26dp">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:gravity="center_vertical"
+                android:orientation="horizontal">
+
+                <LinearLayout
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:orientation="vertical">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="DANA QRIS Bridge"
+                        android:textColor="#FFFFFF"
+                        android:textSize="21sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvDeviceSubtitle"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="2dp"
+                        android:text="Merchant Payment Notification Terminal"
+                        android:textColor="#E0F2FE"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnTogglePermissionsView"
+                    android:layout_width="wrap_content"
+                    android:layout_height="36dp"
+                    android:background="@drawable/bg_pill_white_alpha"
+                    android:paddingHorizontal="14dp"
+                    android:text="Izin &amp; ToS"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="12sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- Content Wrapper -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:paddingHorizontal="16dp"
+            android:layout_marginTop="14dp">
+
+            <!-- =============================================================== -->
+            <!-- VIEW 1: ONBOARDING TERMS OF SERVICE & 4 REQUIRED PERMISSIONS    -->
+            <!-- =============================================================== -->
+            <LinearLayout
+                android:id="@+id/cardTosAndPermissions"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Ketentuan Layanan &amp; Izin Operasional"
+                    android:textColor="@color/bank_navy_text"
+                    android:textSize="16sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginBottom="14dp"
+                    android:text="Lengkapi persetujuan dan izin sistem berikut agar terminal dapat membaca notifikasi pembayaran masuk DANA Bisnis secara otomatis 24/7."
+                    android:textColor="@color/bank_slate_text"
+                    android:textSize="12.5sp" />
+
+                <!-- Terms of Service Box -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_perm_item"
+                    android:orientation="vertical"
+                    android:padding="14dp"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Terms of Service (Ketentuan Penggunaan)"
+                        android:textColor="@color/bank_navy_text"
+                        android:textSize="13sp"
+                        android:textStyle="bold"
+                        android:layout_marginBottom="6dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="• Aplikasi hanya memfilter notifikasi pembayaran masuk dari aplikasi DANA (id.dana).\n• Data nominal transaksi hanya diteruskan ke alamat IP &amp; Port Server milik Anda sendiri.\n• Layanan berjalan di latar belakang dan otomatis aktif kembali saat perangkat di-restart."
+                        android:textColor="@color/bank_slate_text"
+                        android:textSize="12sp"
+                        android:lineSpacingExtra="3dp" />
+
+                    <CheckBox
+                        android:id="@+id/cbAgreeTos"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="8dp"
+                        android:buttonTint="@color/bank_blue_primary"
+                        android:text="Saya telah membaca dan menyetujui Ketentuan Layanan"
+                        android:textColor="@color/bank_navy_text"
+                        android:textSize="12.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <!-- Permission 1: Read Notifications -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_perm_item"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:layout_marginBottom="8dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="1. Akses Baca Notifikasi DANA"
+                            android:textColor="@color/bank_navy_text"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvPermNotifListenerStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Belum Diizinkan"
+                            android:textColor="@color/bank_amber"
+                            android:textSize="11.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnPermNotifListener"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:backgroundTint="@color/bank_blue_primary"
+                        android:text="Pengaturan"
+                        android:textAllCaps="false"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Permission 2: Run in Background -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_perm_item"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:layout_marginBottom="8dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="2. Berjalan di Latar Belakang (24/7)"
+                            android:textColor="@color/bank_navy_text"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvPermBackgroundStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Memeriksa..."
+                            android:textColor="@color/bank_green"
+                            android:textSize="11.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnPermBackground"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:backgroundTint="@color/bank_blue_primary"
+                        android:text="Izinkan"
+                        android:textAllCaps="false"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Permission 3: Run After Boot -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_perm_item"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:layout_marginBottom="8dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="3. Otomatis Jalan Saat HP Menyala (Boot)"
+                            android:textColor="@color/bank_navy_text"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvPermBootStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Aktif"
+                            android:textColor="@color/bank_green"
+                            android:textSize="11.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnPermBoot"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:backgroundTint="@color/bank_blue_primary"
+                        android:text="Aktifkan"
+                        android:textAllCaps="false"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <!-- Permission 4: Ignore Battery Optimizations -->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_perm_item"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:padding="12dp"
+                    android:layout_marginBottom="16dp">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="4. Bebas Penghemat / Batasan Baterai"
+                            android:textColor="@color/bank_navy_text"
+                            android:textSize="13sp"
+                            android:textStyle="bold" />
+
+                        <TextView
+                            android:id="@+id/tvPermBatteryStatus"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="2dp"
+                            android:text="Belum Bebas Batasan"
+                            android:textColor="@color/bank_amber"
+                            android:textSize="11.5sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
+
+                    <Button
+                        android:id="@+id/btnPermBattery"
+                        android:layout_width="wrap_content"
+                        android:layout_height="38dp"
+                        android:backgroundTint="@color/bank_blue_primary"
+                        android:text="Bebaskan"
+                        android:textAllCaps="false"
+                        android:textColor="#FFFFFF"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnContinueToSetup"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:backgroundTint="@color/bank_green"
+                    android:text="Simpan Persetujuan &amp; Buka Terminal"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- =============================================================== -->
+            <!-- CARD 1: DIGITAL PAIRING TOKEN & STATUS CARD (BANKING OTP STYLE) -->
+            <!-- =============================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="16dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="12dp">
+
+                    <TextView
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:text="Kode Pairing Terminal (Code Pair)"
+                        android:textColor="@color/bank_navy_text"
+                        android:textSize="15sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvConnectionBadge"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="SIAP DIHUBUNGKAN"
+                        android:textColor="@color/bank_amber"
+                        android:textSize="11.5sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:id="@+id/layoutPairCodeBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_token_box"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="18dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="MASUKKAN KODE INI DI WEB DASHBOARD SERVER"
+                        android:textColor="@color/bank_slate_text"
+                        android:textSize="11sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvPairCode"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginVertical="6dp"
+                        android:fontFamily="monospace"
+                        android:letterSpacing="0.22"
+                        android:text="------"
+                        android:textColor="@color/bank_blue_dark"
+                        android:textSize="34sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:id="@+id/tvPairInstruction"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:text="Kode Pair tetap aktif meskipun Web Dashboard belum dibuka."
+                        android:textColor="@color/bank_slate_text"
+                        android:textSize="12sp" />
+                </LinearLayout>
+            </LinearLayout>
+
+            <!-- =============================================================== -->
+            <!-- CARD 2: SERVER CONNECTION SETTINGS (IP + PORT)                  -->
+            <!-- =============================================================== -->
+            <LinearLayout
+                android:id="@+id/cardServerConnection"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="vertical"
+                android:padding="20dp"
+                android:layout_marginBottom="16dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Pengaturan Koneksi Server"
+                    android:textColor="@color/bank_navy_text"
+                    android:textSize="15sp"
+                    android:textStyle="bold" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="2dp"
+                    android:layout_marginBottom="14dp"
+                    android:text="Masukkan alamat IP Server dan Port Pairing (Default: 2020)."
+                    android:textColor="@color/bank_slate_text"
+                    android:textSize="12.5sp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Nama Perangkat / Kasir (Multi-HP)"
+                    android:textColor="@color/bank_navy_text"
+                    android:textSize="12.5sp"
+                    android:textStyle="bold" />
+
+                <EditText
+                    android:id="@+id/etDeviceName"
+                    android:layout_width="match_parent"
+                    android:layout_height="46dp"
+                    android:layout_marginTop="6dp"
+                    android:layout_marginBottom="12dp"
+                    android:background="@drawable/bg_input_field"
+                    android:hint="Contoh: HP Kasir Utama"
+                    android:inputType="text"
+                    android:paddingHorizontal="14dp"
+                    android:textColor="@color/bank_navy_text"
+                    android:textColorHint="@color/bank_muted_text"
+                    android:textSize="14sp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="horizontal">
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginEnd="10dp"
+                        android:layout_weight="2"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="IP Address Server"
+                            android:textColor="@color/bank_navy_text"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etServerIp"
+                            android:layout_width="match_parent"
+                            android:layout_height="46dp"
+                            android:layout_marginTop="6dp"
+                            android:background="@drawable/bg_input_field"
+                            android:hint="192.168.100.8"
+                            android:inputType="textUri"
+                            android:paddingHorizontal="14dp"
+                            android:textColor="@color/bank_navy_text"
+                            android:textColorHint="@color/bank_muted_text"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:orientation="vertical">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:text="Port Pair"
+                            android:textColor="@color/bank_navy_text"
+                            android:textSize="12.5sp"
+                            android:textStyle="bold" />
+
+                        <EditText
+                            android:id="@+id/etServerPort"
+                            android:layout_width="match_parent"
+                            android:layout_height="46dp"
+                            android:layout_marginTop="6dp"
+                            android:background="@drawable/bg_input_field"
+                            android:inputType="number"
+                            android:paddingHorizontal="14dp"
+                            android:text="2020"
+                            android:textColor="@color/bank_navy_text"
+                            android:textColorHint="@color/bank_muted_text"
+                            android:textSize="14sp" />
+                    </LinearLayout>
+                </LinearLayout>
+
+                <Button
+                    android:id="@+id/btnConnectServer"
+                    android:layout_width="match_parent"
+                    android:layout_height="48dp"
+                    android:layout_marginTop="16dp"
+                    android:backgroundTint="@color/bank_blue_primary"
+                    android:text="Simpan &amp; Hubungkan ke Server"
+                    android:textAllCaps="false"
+                    android:textColor="#FFFFFF"
+                    android:textSize="14sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <!-- =============================================================== -->
+            <!-- CARD 3: TEST SIMULATION & ACTIVITY LOG                          -->
+            <!-- =============================================================== -->
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_card_white"
+                android:orientation="vertical"
+                android:padding="20dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Simulasi &amp; Riwayat Aktivitas Terminal"
+                    android:textColor="@color/bank_navy_text"
+                    android:textSize="15sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="4dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="Uji pengiriman notifikasi pembayaran DANA Bisnis ke server."
+                    android:textColor="@color/bank_slate_text"
+                    android:textSize="12sp"
+                    android:layout_marginBottom="12dp" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_vertical"
+                    android:orientation="horizontal"
+                    android:layout_marginBottom="14dp">
+
+                    <EditText
+                        android:id="@+id/etTestAmount"
+                        android:layout_width="0dp"
+                        android:layout_height="44dp"
+                        android:layout_marginEnd="10dp"
+                        android:layout_weight="1"
+                        android:background="@drawable/bg_input_field"
+                        android:hint="Nominal Uji (Rp)"
+                        android:inputType="number"
+                        android:paddingHorizontal="14dp"
+                        android:text="1000232"
+                        android:textColor="@color/bank_navy_text"
+                        android:textColorHint="@color/bank_muted_text"
+                        android:textSize="13.5sp" />
+
+                    <Button
+                        android:id="@+id/btnSendTestNotif"
+                        android:layout_width="wrap_content"
+                        android:layout_height="44dp"
+                        android:backgroundTint="@color/bank_green"
+                        android:paddingHorizontal="16dp"
+                        android:text="Uji Kirim"
+                        android:textAllCaps="false"
+                        android:textColor="#FFFFFF"
+                        android:textSize="13sp"
+                        android:textStyle="bold" />
+                </LinearLayout>
+
+                <TextView
+                    android:id="@+id/tvLogs"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/bg_log_terminal"
+                    android:fontFamily="monospace"
+                    android:minHeight="120dp"
+                    android:padding="12dp"
+                    android:text="[System] Terminal DANA QRIS Bridge siap digunakan."
+                    android:textColor="#E2E8F0"
+                    android:textSize="11.5sp" />
+            </LinearLayout>
+
+        </LinearLayout>
+    </LinearLayout>
+</ScrollView>
